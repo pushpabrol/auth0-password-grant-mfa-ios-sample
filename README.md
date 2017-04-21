@@ -23,6 +23,10 @@
 ```
 
 ## How to use
+- Download or clone the project
+- Go to the project directory and run `pod install` - This will install all the required dependencies from the pod file
+- Open the application in xcode by running `open Auth0Mfa.xcworkspace`
+- Buld the application
 - Run the application and login with a user that has one or more of Guardian with Push, Guardian with SMS or Google Authenticator with TOTP enabled for their account and follow the steps to see MFA working with RO endpoint. If the MFA Works you will be issued an id_token and access_token that you can see in the app
 
 
