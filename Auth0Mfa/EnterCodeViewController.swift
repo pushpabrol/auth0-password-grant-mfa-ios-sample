@@ -33,7 +33,7 @@ class EnterCodeViewController: UIViewController, UITextFieldDelegate
         Application.sharedInstance.challengeType = "otp"
         
     }
-   
+    
     @IBAction func startAgain(_ sender: Any) {
         
         
@@ -45,14 +45,30 @@ class EnterCodeViewController: UIViewController, UITextFieldDelegate
     
     @IBAction func validateCode(_ sender: Any) {
         
-    if(Application.sharedInstance.challengeType == "oob")
-    {
-        self.makeOOBGrantRequest()
-    }
-    if(Application.sharedInstance.challengeType == "otp")
-    {
-    self.makeOtpRequest()
-    }
+        
+        if((self.mfaCode.text?.lengthOfBytes(using: String.Encoding.utf8))! >= 4)
+        {
+            if(Application.sharedInstance.challengeType == "oob")
+            {
+                self.makeOOBGrantRequest()
+            }
+            if(Application.sharedInstance.challengeType == "otp")
+            {
+                self.makeOtpRequest()
+            }
+        }
+        else
+        {
+            let alertController = UIAlertController(title: "Error", message: "Code's gotta be at least 4 or more characters homie!", preferredStyle: UIAlertControllerStyle.alert)
+            
+            let okAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.default)
+            {
+                (result : UIAlertAction) -> Void in
+                
+            }
+            alertController.addAction(okAction)
+            self.present(alertController, animated: true, completion: nil)
+        }
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -79,27 +95,27 @@ class EnterCodeViewController: UIViewController, UITextFieldDelegate
             self.idToken.text = Application.sharedInstance.json?["id_token"] as! String
             self.accessToken.text = Application.sharedInstance.json?["access_token"] as! String
         }
-        
+            
         else
         {
             
-        if(Application.sharedInstance.bindingMethod == "prompt" || Application.sharedInstance.challengeType == "otp")
-        {
-            self.mfaCode.isHidden = false
-            self.validateCodeButton.isHidden = false
-            self.hideWaitingDisplays(hide: true)
-            self.mfaCode.becomeFirstResponder()
-
-        }
-        else
-        {
-        self.mfaCode.isHidden = true
-        self.validateCodeButton.isHidden = true
-        self.hideWaitingDisplays(hide: false)
-        makeOOBGrantRequest()
+            if(Application.sharedInstance.bindingMethod == "prompt" || Application.sharedInstance.challengeType == "otp")
+            {
+                self.mfaCode.isHidden = false
+                self.validateCodeButton.isHidden = false
+                self.hideWaitingDisplays(hide: true)
+                self.mfaCode.becomeFirstResponder()
+                
+            }
+            else
+            {
+                self.mfaCode.isHidden = true
+                self.validateCodeButton.isHidden = true
+                self.hideWaitingDisplays(hide: false)
+                makeOOBGrantRequest()
+                
+            }
             
-        }
-
         }
     }
     
@@ -131,13 +147,13 @@ class EnterCodeViewController: UIViewController, UITextFieldDelegate
                     {
                         
                         _ = self.setTimeout(delay: 10, block: { () -> Void in
-                        self.makeOOBGrantRequest()
-
+                            self.makeOOBGrantRequest()
+                            
                         })
                         
-
+                        
                     }
-                    if(err as! String == "slow_down")
+                    if(err as! String == "slow_down" || err as! String == "invalid_grant" )
                     {
                         let alertController = UIAlertController(title: "Error", message: json["error_description"] as? String, preferredStyle: UIAlertControllerStyle.alert)
                         
@@ -151,19 +167,20 @@ class EnterCodeViewController: UIViewController, UITextFieldDelegate
                     }
                     if(err as! String == "access_denied")
                     {
-                            self.hideWaitingDisplays(hide: true)
-                     self.idToken.text = "MFA Authorization rejected"
-                     self.accessToken.text = "MFA Authorization rejected"
-                    
+                        self.hideWaitingDisplays(hide: true)
+                        self.idToken.text = "MFA Authorization rejected"
+                        self.accessToken.text = "MFA Authorization rejected"
+                        
                     }
+                    
                 }
-                
+                    
                 else
                 {
-                self.hideWaitingDisplays(hide: true)
-                print(json["id_token"] as! String)
-                self.idToken.text = json["id_token"] as! String
-                self.accessToken.text = json["access_token"] as! String
+                    self.hideWaitingDisplays(hide: true)
+                    print(json["id_token"] as! String)
+                    self.idToken.text = json["id_token"] as! String
+                    self.accessToken.text = json["access_token"] as! String
                 }
                 
         }
@@ -195,13 +212,21 @@ class EnterCodeViewController: UIViewController, UITextFieldDelegate
                 let err = json["error"]
                 if(err != nil)
                 {
-                    if(err as! String == "invalid_grant")
+                    
+                    if(err as! String == "invalid_grant" )
                     {
                         self.hideWaitingDisplays(hide: true)
-                        self.idToken.text = "Invalid OTP"
-                        self.accessToken.text = "Invalid OTP"
+                        let alertController = UIAlertController(title: "Error", message: json["error_description"] as? String, preferredStyle: UIAlertControllerStyle.alert)
                         
+                        let okAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.default)
+                        {
+                            (result : UIAlertAction) -> Void in
+                            
+                        }
+                        alertController.addAction(okAction)
+                        self.present(alertController, animated: true, completion: nil)
                     }
+                    
                 }
                     
                 else
@@ -210,25 +235,26 @@ class EnterCodeViewController: UIViewController, UITextFieldDelegate
                     print(json["id_token"] as! String)
                     self.idToken.text = json["id_token"] as! String
                     self.accessToken.text = json["access_token"] as! String
+                    
                 }
                 
         }
-
+        
     }
     
     func hideWaitingDisplays(hide: Bool)
     {
-    self.waitingForAuthorization.isHidden = hide
-    self.authorizationPendingLabel.isHidden = hide
-    self.stopWaitingForAuthzButton.isHidden = hide
-    self.authorizationPendingLabel.isHidden = hide
+        self.waitingForAuthorization.isHidden = hide
+        self.authorizationPendingLabel.isHidden = hide
+        self.stopWaitingForAuthzButton.isHidden = hide
+        self.authorizationPendingLabel.isHidden = hide
     }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
+    
     func setTimeout(delay:TimeInterval, block:@escaping ()->Void) -> Timer {
         return Timer.scheduledTimer(timeInterval: delay, target: BlockOperation(block: block), selector: #selector(Operation.main), userInfo: nil, repeats: false)
     }
@@ -236,6 +262,6 @@ class EnterCodeViewController: UIViewController, UITextFieldDelegate
     func setInterval(interval:TimeInterval, block:@escaping ()->Void) -> Timer {
         return Timer.scheduledTimer(timeInterval: interval, target: BlockOperation(block: block), selector: #selector(Operation.main), userInfo: nil, repeats: true)
     }
-
-
+    
+    
 }

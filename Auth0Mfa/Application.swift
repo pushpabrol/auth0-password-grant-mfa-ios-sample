@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import SimpleKeychain
 class Application {
     
     static var sharedInstance = Application()
@@ -16,7 +15,6 @@ class Application {
     var domain : String?
     var API_AUDIENCE : String?
     var realm : String?
-    var keychainService : A0SimpleKeychain
     var bindingMethod: String?
     var oobCode: String?
     var mfa_token: String?
@@ -24,8 +22,6 @@ class Application {
     var challengeType: String?
     
     private init() {
-        self.keychainService = A0SimpleKeychain.init(service: "Auth0", accessGroup: "R82LKF5W93.com.auth0.Auth0WebAuth");
-        self.keychainService.defaultAccessiblity =  A0SimpleKeychainItemAccessible.whenUnlockedThisDeviceOnly
         let path = Bundle.main.path(forResource: "Auth0", ofType: "plist")
         let dict = NSDictionary(contentsOfFile: path!)
         self.clientId = dict!.object(forKey: "clientId") as? String

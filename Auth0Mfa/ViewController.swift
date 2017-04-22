@@ -31,7 +31,7 @@ extension UIViewController {
 }
 
 class ViewController: UIViewController, UITextFieldDelegate {
-
+    
     @IBOutlet weak var username: UITextField!
     @IBOutlet weak var password: UITextField!
     
@@ -44,18 +44,18 @@ class ViewController: UIViewController, UITextFieldDelegate {
     }
     
     @IBAction func loginButton(_ sender: Any) {
-
-        let oAuthEndpoint: String = "https://".appending(Application.sharedInstance.domain!).appending("/oauth/token");
-        let authRequest = ["realm":Application.sharedInstance.realm,"audience":Application.sharedInstance.API_AUDIENCE,"client_id":Application.sharedInstance.clientId,"password":password.text!,"grant_type":"http://auth0.com/oauth/grant-type/password-realm","scope":"openid profile","username":username.text!] as! Dictionary<String,String>
-
         
-
+        let oAuthEndpoint: String = "https://".appending(Application.sharedInstance.domain!).appending("/oauth/token");
+        let authRequest = ["realm":Application.sharedInstance.realm,"audience":Application.sharedInstance.API_AUDIENCE,"client_id":Application.sharedInstance.clientId,"password":password.text!,"grant_type":"http://auth0.com/oauth/grant-type/password-realm","scope":"openid profile email","username":username.text!] as! Dictionary<String,String>
+        
+        
+        
         Alamofire.request(oAuthEndpoint , method: .post, parameters: authRequest, encoding: JSONEncoding.default)
             .LogRequest()
             .responseJSON { response in
                 guard response.result.error == nil else {
                     print(response.result.error!)
-
+                    
                     return
                 }
                 
@@ -67,34 +67,34 @@ class ViewController: UIViewController, UITextFieldDelegate {
                 
                 if((json["error"]) != nil)
                 {
-                let error = json["error"] as! String
-                
-                if(error == "mfa_required")
-                {
-                
-                    let mfa_token = json["mfa_token"] as! String
+                    let error = json["error"] as! String
                     
-                    self.challengeRequest(mfa_token: mfa_token)
-                    
-                }
-                else
-                {
-                    let alertController = UIAlertController(title: "Error", message: json["error_description"] as? String, preferredStyle: UIAlertControllerStyle.alert)
-                    
-                    let okAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.default)
+                    if(error == "mfa_required")
                     {
-                        (result : UIAlertAction) -> Void in
+                        
+                        let mfa_token = json["mfa_token"] as! String
+                        
+                        self.challengeRequest(mfa_token: mfa_token)
                         
                     }
-                    alertController.addAction(okAction)
-                    self.present(alertController, animated: true, completion: nil)
-                }
+                    else
+                    {
+                        let alertController = UIAlertController(title: "Error", message: json["error_description"] as? String, preferredStyle: UIAlertControllerStyle.alert)
+                        
+                        let okAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.default)
+                        {
+                            (result : UIAlertAction) -> Void in
+                            
+                        }
+                        alertController.addAction(okAction)
+                        self.present(alertController, animated: true, completion: nil)
+                    }
                 }
                 else
                 {
                     Application.sharedInstance.json = json
-                self.performSegue(withIdentifier: "enterMFACode", sender: self)
-                
+                    self.performSegue(withIdentifier: "enterMFACode", sender: self)
+                    
                 }
                 
                 
@@ -103,7 +103,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
     }
     
     func challengeRequest(mfa_token:String) -> Void {
-
+        
         let url: String = "https://".appending(Application.sharedInstance.domain!).appending("/mfa/challenge");
         let challengeRequest = ["challenge_type":"oob otp","client_id":Application.sharedInstance.clientId,"mfa_token":mfa_token] as! Dictionary<String,String>
         
@@ -124,40 +124,40 @@ class ViewController: UIViewController, UITextFieldDelegate {
                 }
                 if(json["error"] == nil)
                 {
-                let challenge_type = json["challenge_type"] as! String
-                Application.sharedInstance.challengeType = challenge_type
-                if(challenge_type == "otp")
-                {
-                   Application.sharedInstance.mfa_token = mfa_token
-                    self.performSegue(withIdentifier: "enterMFACode", sender: self)
-                   
-                }
-                if(challenge_type == "oob")
-                {
-                    
-                    if(json["binding_method"] != nil ) {
-                     Application.sharedInstance.bindingMethod = json["binding_method"]! as? String
-                    }
-                    else
+                    let challenge_type = json["challenge_type"] as! String
+                    Application.sharedInstance.challengeType = challenge_type
+                    if(challenge_type == "otp")
                     {
-                    Application.sharedInstance.bindingMethod = nil
+                        Application.sharedInstance.mfa_token = mfa_token
+                        self.performSegue(withIdentifier: "enterMFACode", sender: self)
+                        
                     }
-                    Application.sharedInstance.mfa_token = mfa_token
-                    Application.sharedInstance.oobCode = json["oob_code"]! as? String
-                    self.performSegue(withIdentifier: "enterMFACode", sender: self)
-                    
-                }
+                    if(challenge_type == "oob")
+                    {
+                        
+                        if(json["binding_method"] != nil ) {
+                            Application.sharedInstance.bindingMethod = json["binding_method"]! as? String
+                        }
+                        else
+                        {
+                            Application.sharedInstance.bindingMethod = nil
+                        }
+                        Application.sharedInstance.mfa_token = mfa_token
+                        Application.sharedInstance.oobCode = json["oob_code"]! as? String
+                        self.performSegue(withIdentifier: "enterMFACode", sender: self)
+                        
+                    }
                 }
                 else
                 {
-                print(json)
+                    print(json)
                     
                     let alertController = UIAlertController(title: "Error", message: json["error_description"] as? String, preferredStyle: UIAlertControllerStyle.alert)
                     
                     let okAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.default)
                     {
                         (result : UIAlertAction) -> Void in
-     
+                        
                     }
                     alertController.addAction(okAction)
                     self.present(alertController, animated: true, completion: nil)
@@ -166,21 +166,21 @@ class ViewController: UIViewController, UITextFieldDelegate {
                 
                 
         }
-
+        
         
         
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-         self.hideKeyboardWhenTappedAround() 
+        self.hideKeyboardWhenTappedAround()
         // Do any additional setup after loading the view, typically from a nib.
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
-
+    
+    
 }
 

@@ -3,12 +3,12 @@
 <plist version="1.0">
 <dict>
 	<key>audience</key>
-	<string>API_AUDIENCE</string>
+	<string></string>
 	<key>realm</key>
-	<string>AUTH0_REALM_CONNECTION</string>
+	<string></string>
 	<key>clientId</key>
-	<string>CLIENT_ID</string>
+	<string></string>
 	<key>domain</key>
-	<string>AUTH0_DOMAIN</string>
+	<string></string>
 </dict>
 </plist>
