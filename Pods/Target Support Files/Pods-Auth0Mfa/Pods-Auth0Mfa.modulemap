@@ -1,6 +1,0 @@
-framework module Pods_Auth0Mfa {
-  umbrella header "Pods-Auth0Mfa-umbrella.h"
-
-  export *
-  module * { export * }
-}
