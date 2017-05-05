@@ -35,8 +35,6 @@ class EnterCodeViewController: UIViewController, UITextFieldDelegate
     }
     
     @IBAction func startAgain(_ sender: Any) {
-        
-        
         self.idToken.text = ""
         self.accessToken.text = "";
         self.performSegue(withIdentifier: "startAgain", sender: self)
@@ -91,8 +89,10 @@ class EnterCodeViewController: UIViewController, UITextFieldDelegate
             self.validateCodeButton.isHidden = true
             self.hideWaitingDisplays(hide: true)
             
-            print(Application.sharedInstance.json?["id_token"] as! String)
+            if(Application.sharedInstance.json?["id_token"] != nil)
+            {
             self.idToken.text = Application.sharedInstance.json?["id_token"] as! String
+            }
             self.accessToken.text = Application.sharedInstance.json?["access_token"] as! String
         }
             
@@ -181,6 +181,7 @@ class EnterCodeViewController: UIViewController, UITextFieldDelegate
                     print(json["id_token"] as! String)
                     self.idToken.text = json["id_token"] as! String
                     self.accessToken.text = json["access_token"] as! String
+                    Application.sharedInstance.keychainService.setString(json["refresh_token"] as! String, forKey: "refreshToken")
                 }
                 
         }

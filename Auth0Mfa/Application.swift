@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SimpleKeychain
 class Application {
     
     static var sharedInstance = Application()
@@ -20,8 +21,10 @@ class Application {
     var mfa_token: String?
     var json: [String: AnyObject]?
     var challengeType: String?
+    var keychainService : A0SimpleKeychain
     
     private init() {
+        self.keychainService = A0SimpleKeychain.init(service: "Auth0", accessGroup: "R82LKF5W93.com.auth0.Auth0WebAuth");
         let path = Bundle.main.path(forResource: "Auth0", ofType: "plist")
         let dict = NSDictionary(contentsOfFile: path!)
         self.clientId = dict!.object(forKey: "clientId") as? String
