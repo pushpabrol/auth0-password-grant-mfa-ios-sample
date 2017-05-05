@@ -3,12 +3,12 @@
 <plist version="1.0">
 <dict>
 	<key>audience</key>
-	<string>urn:test:api</string>
+	<string>api_audience</string>
 	<key>realm</key>
-	<string>AMC-DB</string>
+	<string>connection name</string>
 	<key>clientId</key>
-	<string>zb3gDWHD6Q40cTiVOokEEVy6u5oYHIED</string>
+	<string>client_id</string>
 	<key>domain</key>
-	<string>amc-test.auth0.com</string>
+	<string>xxx.auth0.com</string>
 </dict>
 </plist>
